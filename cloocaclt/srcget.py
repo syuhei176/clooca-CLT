@@ -1,13 +1,14 @@
 import sys
 import httplib
 import urllib
+from optparse import OptionParser
 
-HOST = '127.0.0.1:8124'
+DEFAULT_HOST = '127.0.0.1:8124'
 TIMEOUT = 10
 DEFAULT_OUTPUTFILE = 'default.zip'
 
-def get_sourcecode_from_clooca(outfile):
-    hclient = httplib.HTTPConnection(HOST, timeout=TIMEOUT)
+def get_sourcecode_from_clooca(outfile, host):
+    hclient = httplib.HTTPConnection(host, timeout=TIMEOUT)
     username = raw_input("UserName:")
     password = raw_input("PassWord:")
     params = urllib.urlencode({'email': username, 'password': password})
@@ -39,10 +40,21 @@ def get_sourcecode_from_clooca(outfile):
     hclient.close()
 
 if __name__ == '__main__':
-    argvs = sys.argv
-    argc = len(argvs)
-    if argc == 1:
-        get_sourcecode_from_clooca(argvs[0]+'/'+DEFAULT_OUTPUTFILE);
-    if argc == 2:
-        get_sourcecode_from_clooca(argvs[0]+'/'+argvs[1]);
+    parser = OptionParser()
+    parser.add_option("-o", "--output", dest="filename",
+                  help="output filename", metavar="FILE")
+    parser.add_option("-h", "--host", dest="host",
+                  help='give host name. example:"www.clooca.com:8124"')
+    (options, args) = parser.parse_args()
+    if options.filename != None:
+        filename = options.filename
+    else:
+        filename = DEFAULT_OUTPUTFILE
+    if options.host != None:
+        host = options.host
+    else:
+        host = DEFAULT_HOST
+    path = sys.argv[0]
+    print path+'/'+filename
+    get_sourcecode_from_clooca(path+'/'+filename, host);
     
